@@ -1,0 +1,10 @@
+
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    @for (image of imageUrls(); track image) {
+      <gift-list-item
+        [imageUrl]="image"
+      />
+    }
+</div>
+
