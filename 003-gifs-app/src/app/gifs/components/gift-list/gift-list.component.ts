@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { GiftListItemComponent } from "./gift-list-item/gift-list-item.component";
+import { Gif } from '../../interfaces/gift.interface';
 
 @Component({
   selector: 'gift-list',
@@ -8,5 +9,5 @@ import { GiftListItemComponent } from "./gift-list-item/gift-list-item.component
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GiftListComponent {
-  imageUrls = input.required<string[]>();
+  imageUrls = input.required<Gif[]>();
  }
