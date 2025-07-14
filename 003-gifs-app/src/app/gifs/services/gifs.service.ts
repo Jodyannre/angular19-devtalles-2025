@@ -1,30 +1,54 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { environment } from '@environments/environment';
 import { GiphyResponse } from '../interfaces/giphy.interfaces';
 import { Gif } from '../interfaces/gift.interface';
 import { GifMapper } from '../mapper/gif.mapper';
-import { map, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
+
+const GIF_KEY = 'gifs';
+
+
+const loadFromLocalStorage = () => {
+  const gifsFromLocalStorage = localStorage.getItem(GIF_KEY) ?? '{}';
+  const gifs = JSON.parse(gifsFromLocalStorage);
+  return gifs;
+}
+
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class GifService {
 
   private http = inject(HttpClient);
 
   trendingGifs = signal<Gif[]>([]);
 
+  trendingGifGroup = computed<Gif[][]>( () => {
+    const group = [];
+    for (let i = 0; i< this.trendingGifs().length; i+=3) {
+      group.push(this.trendingGifs().slice(i, i+3))
+    }
+    return group;
+  })
+
   trendingGifsLoading = signal<boolean>(true);
 
   gifsSearched = signal<Gif[]>([]);
 
-  searchHistory = signal<Record<string, Gif[]>>({});
+  searchHistory = signal<Record<string, Gif[]>>(loadFromLocalStorage());
   searchHistoryKeys = computed(() => Object.keys(this.searchHistory()));
 
   constructor() {
     this.loadTrendingGifs();
   }
+
+  saveGifsToLocalStorage = effect( () => {
+    const historyString = JSON.stringify(this.searchHistory());
+    localStorage.setItem(GIF_KEY, historyString);
+  })
 
   loadTrendingGifs() {
     const apiKey = environment.giphyApiKey;
@@ -41,7 +65,7 @@ export class GifService {
     })
   }
 
-  searchGifs(query: string) {
+  searchGifs(query: string): Observable<Gif[]> {
     const apiKey = environment.giphyApiKey;
 
     return this.http.get<GiphyResponse>(`${ environment.giphyApiUrl }/gifs/search`, {
@@ -61,6 +85,10 @@ export class GifService {
     })
   )
 
+  }
+
+  getHistoryGifs(query: string): Gif[] {
+    return this.searchHistory()[query] || [];
   }
 
 }
