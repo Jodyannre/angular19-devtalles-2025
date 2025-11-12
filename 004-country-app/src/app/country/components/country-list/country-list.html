@@ -37,6 +37,32 @@
           </td>
         </tr>
       }
+
+      <!--- Mensaje de error --->
+      @if (errorMessage()) {
+        <tr>
+          <td colspan="8" class="text-center">
+              {{ errorMessage() }}
+          </td>
+        </tr>
+      }
+      <!--- Mensaje de lista vacía --->
+      @if (countries().length === 0 && !isLoading() && !errorMessage()) {
+        <tr>
+          <td colspan="8" class="text-center">
+              No se encontraron resultados.
+          </td>
+        </tr>
+      }
+
+      <!--- Mensaje de carga --->
+      @if (isLoading()) {
+        <tr>
+          <td colspan="8" class="text-center">
+              Buscando países...
+          </td>
+        </tr>
+      }
     </tbody>
   </table>
 </section>
