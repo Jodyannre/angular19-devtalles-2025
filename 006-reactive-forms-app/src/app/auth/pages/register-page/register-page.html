@@ -11,18 +11,15 @@
           <input
             type="text"
             class="form-control"
-            placeholder="Nombre del usuario"
+            placeholder="Nombre y apellido"
             formControlName="name"
           />
           @if (formUtils.isValidField(myForm, 'name')) {
           <span class="form-text text-danger">
-            {{formUtils.getFieldError(myForm, 'name')}}
+            El campo debe de tener nombre y apellido
+            <!-- {{formUtils.getFieldError(myForm, 'name')}} -->
           </span>
           }
-
-          <span class="form-text text-danger">
-            Debe de ser en formato de nombre y apellido
-          </span>
         </div>
       </div>
 
@@ -37,13 +34,11 @@
             formControlName="email"
           />
           @if (formUtils.isValidField(myForm, 'email')) {
+
             <span class="form-text text-danger">
               {{formUtils.getFieldError(myForm, 'email')}}
             </span>
           }
-          <span class="form-text text-danger">
-            mensaje de error del email
-          </span>
         </div>
       </div>
 
@@ -62,9 +57,6 @@
               {{formUtils.getFieldError(myForm, 'username')}}
             </span>
           }
-          <span class="form-text text-danger">
-            El username no puede ser Strider
-          </span>
         </div>
       </div>
 
@@ -83,9 +75,6 @@
               {{formUtils.getFieldError(myForm, 'password')}}
             </span>
           }
-          <span class="form-text text-danger">
-            La contraseña debe de ser mayor de 6 caracteres.
-          </span>
         </div>
       </div>
 
@@ -104,14 +93,15 @@
               {{formUtils.getFieldError(myForm, 'password2')}}
             </span>
           }
-          <span class="form-text text-danger">
-            Las contraseñas deben de ser iguales
-          </span>
         </div>
       </div>
 
       <div class="row">
         <div class="col">
+
+            @if (myForm.errors && myForm.touched) {
+              <span class="text-danger"> Las contraseñas no son iguales </span>
+            }
           <button class="btn btn-primary float-end" type="submit">Crear</button>
         </div>
       </div>
