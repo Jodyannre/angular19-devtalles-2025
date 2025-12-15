@@ -1,4 +1,10 @@
 @import "tailwindcss";
+@import "@tomtom-international/web-sdk-maps";
 @plugin "daisyui" {
   themes: night --default
 };
+
+#map {
+    width: 100vw;
+    height: calc( 100vh - 64px );
+}

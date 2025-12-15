@@ -1,4 +1,6 @@
-import { afterEveryRender, afterNextRender, afterRenderEffect, Component, effect } from '@angular/core';
+import { afterEveryRender, afterNextRender, afterRenderEffect, Component, effect, signal } from '@angular/core';
+import { Title } from '../../components/title/title';
+
 
 const log = ( ...messages:string[]) => {
   console.log(`${messages[0] } %c${messages.slice(1).join(', ')}`, 'color: #bada55')
@@ -7,12 +9,28 @@ const log = ( ...messages:string[]) => {
 
 @Component({
   selector: 'app-home-page',
-  imports: [],
+  imports: [Title],
   templateUrl: './home-page.html',
 })
 export class HomePage {
+
+  traditionalProperty = 'Joddie'
+  signalProperty = signal('Joddie')
+
   constructor() {
     log('constructor llamado');
+
+    // setTimeout(() => {
+    //   this.signalProperty.set('Cambio despues de 3 segundos')
+    // }, 3000);
+  }
+
+  changeTraditional(){
+    this.traditionalProperty = 'Joddie Santos'
+  }
+
+  changeSignal(){
+    this.signalProperty.set('Joddie Santos')
   }
 
   basicEffect = effect(( onCleanup) => {
