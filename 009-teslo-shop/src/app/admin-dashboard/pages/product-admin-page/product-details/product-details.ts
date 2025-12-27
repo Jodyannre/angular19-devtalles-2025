@@ -1,10 +1,12 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
 import { Product } from '@products/interfaces/product.interface';
 import { ProductCarousel } from "@products/components/product-carousel/product-carousel";
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormUtils } from '@utils/forms-utils';
 import { FormErrorLabel } from "@shared/components/form-error-label/form-error-label";
 import { ProductsService } from '@products/services/products.service';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'product-details',
@@ -13,8 +15,16 @@ import { ProductsService } from '@products/services/products.service';
 })
 export class ProductDetails implements OnInit {
   product = input.required<Product>();
+  router = inject(Router);
   productService = inject(ProductsService);
   fb = inject(FormBuilder);
+  wasSaved = signal(false);
+  tempImages = signal<string[]>([]);
+  imageFileList: FileList | undefined = undefined;
+  imagesToCarousel = computed(()=> {
+    const currentProductImages = [...this.product().images, ...this.tempImages()];
+    return currentProductImages;
+  })
 
   productForm = this.fb.group({
     title: ['', Validators.required],
@@ -53,7 +63,7 @@ export class ProductDetails implements OnInit {
     this.productForm.patchValue({ sizes: currentSizes });
   }
 
-  onSubmit() {
+  async onSubmit() {
     const isValid = this.productForm.valid;
     this.productForm.markAllAsTouched();
     if (!isValid) return
@@ -64,7 +74,32 @@ export class ProductDetails implements OnInit {
       ?.toLowerCase()
       ?.split(',').map( tag => tag.trim() ) ?? [],
     }
-    this.productService.updateProduct(productLike);
+
+    if (this.product().id === 'new') {
+      const producto = await firstValueFrom(
+        this.productService.createProduct(productLike, this.imageFileList)
+      )
+      this.router.navigate(['/admin/products', producto.id]);
+    } else {
+        await firstValueFrom(
+          this.productService.updateProduct(this.product().id, productLike, this.imageFileList)
+      )
+    }
+
+    this.wasSaved.set(true);
+    setTimeout(() => {
+      this.wasSaved.set(false);
+    }, 3000);
+  }
+
+  onFilesChanged(event: Event) {
+    const fileList = (event.target as HTMLInputElement).files;
+    this.imageFileList = fileList ?? undefined;
+
+    const imageUrls = Array.from(fileList ?? []).map(file => URL.createObjectURL(file));
+
+    this.tempImages.set(imageUrls);
+
   }
 
 }
